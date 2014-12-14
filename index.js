@@ -1,6 +1,7 @@
 var Promise = require('bluebird'),
     request = require('request'),
-    cheerio = require('cheerio')
+    cheerio = require('cheerio'),
+    _ = require('lodash')
     ;
 
 var Response = function (html) {
@@ -8,7 +9,9 @@ var Response = function (html) {
     this.$ = cheerio.load(html);
 }
 
-var Bot = function () {
+var Bot = function (project) {
+
+    this.runnable = true;
 
     this.results = {
         currentVersion: '',
@@ -17,6 +20,29 @@ var Bot = function () {
         downloadUrl: '',
         downloadPage: ''
     };
+
+    var defProject = {
+        group: 'Unknown',
+        name: 'Unknown',
+        description: '',
+        website: '',
+        repository: ''
+    };
+
+    if (!_.isPlainObject(project)) {
+        throw new Error('Appdate bot: bot with empty or wrong project identification');
+    }
+
+    Object.keys(project).forEach(function (k) {
+        if (!_.has(defProject, k)) {
+            throw new Error('Appdate bot: bot with wrong key in project identification');
+        }
+    });
+
+    this.project = _.defaults(project, defProject);
+
+    console.log(this.project)
+
 }
 
 Bot.prototype.set = function (key, value) {

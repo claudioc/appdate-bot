@@ -1,6 +1,6 @@
 {
   "name": "appdate-bot",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "This is the appdate bot module",
   "author": "Claudio Cicali <claudio.cicali@gmail.com>",
   "main": "index.js",
@@ -11,14 +11,17 @@
     "type": "git",
     "url": "https://github.com/claudioc/jingo"
   },
-  "licenses": [{
-    "type": "MIT",
-    "url": "http://github.com/claudioc/appdate-bot/raw/master/LICENSE"
-  }],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/claudioc/appdate-bot/raw/master/LICENSE"
+    }
+  ],
   "dependencies": {
     "request": "~2.49.0",
     "cheerio": "~0.18.0",
-    "bluebird": "~2.3.11"
+    "bluebird": "~2.3.11",
+    "lodash": "~2.4.1"
   },
   "devDependencies": {
     "mocha": "~2.0.1",
