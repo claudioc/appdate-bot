@@ -1,0 +1,16 @@
+{
+  "name": "appdate-bot",
+  "version": "0.0.1",
+  "description": "This is the appdate bot module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "request": "~2.49.0",
+    "cheerio": "~0.18.0",
+    "bluebird": "~2.3.11"
+  }
+}
