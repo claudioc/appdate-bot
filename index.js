@@ -1,13 +1,14 @@
 var Promise = require('bluebird'),
     request = require('request'),
     cheerio = require('cheerio'),
+    sprintf = require('util').format,
     _ = require('lodash')
     ;
 
 var Response = function (html) {
 
     this.$ = cheerio.load(html);
-}
+};
 
 var Bot = function (project) {
 
@@ -40,24 +41,42 @@ var Bot = function (project) {
     });
 
     this.project = _.defaults(project, defProject);
-
-    console.log(this.project)
-
-}
+};
 
 Bot.prototype.set = function (key, value) {
-    if (!this.results.hasOwnProperty(key)) {
-        throw new Error('Appdate bot: unknown result ' + key);
+
+    if (!_.isString(key) || _.isUndefined(value)) {
+        throw new Error('Appdate bot: wrong parameter(s) for set');
     }
-    this.results[key] = value;
-}
+
+    if (!this.results.hasOwnProperty(key)) {
+        throw new Error('Appdate bot: unknown result key ' + key);
+    }
+
+    this.results[key] = sprintf.apply(null, Array.prototype.slice.call(arguments, 1));
+};
 
 Bot.prototype.get = function (key) {
-    if (!this.results.hasOwnProperty(key)) {
-        throw new Error('Appdate bot: unknown result ' + key);
+
+    if (!_.isString(key)) {
+        throw new Error('Appdate bot: wrong parameter for get');
     }
+
+    if (!this.results.hasOwnProperty(key)) {
+        throw new Error('Appdate bot: unknown result key ' + key);
+    }
+
     return this.results[key];
-}
+};
+
+Bot.prototype.abort = function (error) {
+    process.exit(1);
+};
+
+Bot.prototype.end = function () {
+    console.log(JSON.stringify(this.results));
+    process.exit(0);
+};
 
 Bot.prototype.open = function (url) {
 
@@ -76,7 +95,7 @@ Bot.prototype.open = function (url) {
             resolve(new Response(body));
         });
     });
-}
+};
 
 module.exports = {
     Bot: Bot

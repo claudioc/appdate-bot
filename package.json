@@ -1,6 +1,6 @@
 {
   "name": "appdate-bot",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "This is the appdate bot module",
   "author": "Claudio Cicali <claudio.cicali@gmail.com>",
   "main": "index.js",
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "mocha": "~2.0.1",
-    "sinon": "~1.12.2"
+    "sinon": "~1.12.2",
+    "should": "~4.4.1"
   }
 }
