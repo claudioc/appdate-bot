@@ -70,6 +70,7 @@ Bot.prototype.get = function (key) {
 };
 
 Bot.prototype.abort = function (error) {
+    console.error(error);
     process.exit(1);
 };
 
@@ -78,7 +79,7 @@ Bot.prototype.end = function () {
     process.exit(0);
 };
 
-Bot.prototype.open = function (url) {
+Bot.prototype.fetch = function (url) {
 
     return new Promise(function (resolve, reject) {
 
@@ -97,7 +98,63 @@ Bot.prototype.open = function (url) {
     });
 };
 
-module.exports = {
-    Bot: Bot
+var Bot_Github = function(project) {
+    Bot.call(this, project);
 };
 
+Bot_Github.prototype.fetchTags = function (account, repo, test) {
+
+    var data = [];
+
+    return this.fetch('https://github.com/' + account + '/' + repo + '/releases')
+
+        .then(function (response) {
+    
+            var $tags = response.$('.release-timeline-tags > li');
+            if (test) {
+                test = new RegExp(test);
+            }
+            $tags.each(function (i, el) {
+                var $el = response.$(el),
+                    version = $el.find('h3 > a > .tag-name').text();
+
+                if (!test || test.test(version)) {
+                    data.push({
+                        date: $el.find('time').attr('datetime'),
+                        version: version
+                    });
+                }
+            });
+
+            return Promise.resolve(data);
+        });
+}
+
+extend(Bot, Bot_Github);
+
+module.exports = {
+    Bot: Bot,
+    Bot_Github: Bot_Github
+};
+
+function extend(base, sub) {
+  // Avoid instantiating the base class just to setup inheritance
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+  // for a polyfill
+  // Also, do a recursive merge of two prototypes, so we don't overwrite 
+  // the existing prototype, but still maintain the inheritance chain
+  // Thanks to @ccnokes
+  var origProto = sub.prototype;
+  sub.prototype = Object.create(base.prototype);
+  for (var key in origProto)  {
+     sub.prototype[key] = origProto[key];
+  }
+  // Remember the constructor property was set wrong, let's fix it
+  sub.prototype.constructor = sub;
+  // In ECMAScript5+ (all modern browsers), you can make the constructor property
+  // non-enumerable if you define it like this instead
+  Object.defineProperty(sub.prototype, 'constructor', { 
+    enumerable: false, 
+    value: sub 
+  });
+}

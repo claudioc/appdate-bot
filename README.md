@@ -36,7 +36,7 @@ var bot = new Bot({
     repository: 'https://github.com/foobar/foobar-project'
 });
 
-bot.open('http://www.foobar-project.com/releases')
+bot.fetch('http://www.foobar-project.com/releases')
 
     .then(function (response) {
 
