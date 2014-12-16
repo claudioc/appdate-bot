@@ -1,3 +1,6 @@
+
+[![Build Status](https://travis-ci.org/claudioc/appdate-bot.svg)](https://travis-ci.org/claudioc/appdate-bot)
+
 # Appdate Bot Module
 
 This is the module you need to use when creating a new Appdate bot.
