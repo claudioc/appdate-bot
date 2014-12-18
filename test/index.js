@@ -1,4 +1,55 @@
 var Bot = require('../').Bot;
+var Bot_Github = require('../').Bot_Github;
+var utils = require('../').utils;
+
+describe('The utils object', function () {
+    
+    describe('maxVersion method', function () {
+
+        it('should return the max version out of an array', function () {
+
+            var versions = [
+                '1.1.0',
+                '1.1.3',
+                '1.1.2',
+                '2.1.2',
+                '2.1.0',
+                '2.3.2'
+            ];
+
+            var max = utils.maxVersion(versions, '1.1.x');
+            max.should.equal('1.1.3');
+
+            max = utils.maxVersion(versions, '2.1.x');
+            max.should.equal('2.1.2');
+
+            max = utils.maxVersion(versions, '2.3.x');
+            max.should.equal('2.3.2');
+
+            max = utils.maxVersion(versions, 'x.x.x');
+            max.should.equal('2.3.2');
+
+            max = utils.maxVersion(versions, '4.x.x');
+            (max === null).should.be.true;
+        });
+    });
+});
+
+describe('The github bot object', function () {
+
+    describe('Constructor', function () {
+
+        it ('should be an instance of Bot', function () {
+            
+            var bot = new Bot_Github({group: 'salazar'});
+
+            bot.should.be.an.instanceof(Bot);
+
+            bot.project.should.have.property('name', 'Unknown');
+        });
+    });
+
+});
 
 describe('The bot object', function () {
 
@@ -108,6 +159,4 @@ describe('The bot object', function () {
             bot.get('currentVersion').should.equal('123');
         });
     });
-
-
 });

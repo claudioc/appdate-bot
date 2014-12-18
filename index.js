@@ -1,6 +1,7 @@
 var Promise = require('bluebird'),
     request = require('request'),
     cheerio = require('cheerio'),
+    semver = require('semver'),
     sprintf = require('util').format,
     _ = require('lodash')
     ;
@@ -102,6 +103,8 @@ var Bot_Github = function(project) {
     Bot.call(this, project);
 };
 
+Bot_Github.prototype = _.create(Bot.prototype);
+
 Bot_Github.prototype.fetchTags = function (account, repo, test) {
 
     var data = [];
@@ -110,18 +113,23 @@ Bot_Github.prototype.fetchTags = function (account, repo, test) {
 
         .then(function (response) {
     
-            var $tags = response.$('.release-timeline-tags > li');
+            var $tags = response.$('.release-timeline-tags > li'),
+                matches;
+
             if (test) {
                 test = new RegExp(test);
             }
+
             $tags.each(function (i, el) {
+
                 var $el = response.$(el),
                     version = $el.find('h3 > a > .tag-name').text();
 
-                if (!test || test.test(version)) {
+                if (!test || (matches = version.match(test))) {
+
                     data.push({
                         date: $el.find('time').attr('datetime'),
-                        version: version
+                        tag: test ? (matches[1] ? matches[1] : matches[0]) : version
                     });
                 }
             });
@@ -130,31 +138,16 @@ Bot_Github.prototype.fetchTags = function (account, repo, test) {
         });
 }
 
-extend(Bot, Bot_Github);
+var utils = {
+
+    maxVersion: function (versions, range) {
+        return semver.maxSatisfying(versions, range);
+    }
+};
 
 module.exports = {
     Bot: Bot,
-    Bot_Github: Bot_Github
+    Bot_Github: Bot_Github,
+    utils: utils,
+    lodash: _
 };
-
-function extend(base, sub) {
-  // Avoid instantiating the base class just to setup inheritance
-  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
-  // for a polyfill
-  // Also, do a recursive merge of two prototypes, so we don't overwrite 
-  // the existing prototype, but still maintain the inheritance chain
-  // Thanks to @ccnokes
-  var origProto = sub.prototype;
-  sub.prototype = Object.create(base.prototype);
-  for (var key in origProto)  {
-     sub.prototype[key] = origProto[key];
-  }
-  // Remember the constructor property was set wrong, let's fix it
-  sub.prototype.constructor = sub;
-  // In ECMAScript5+ (all modern browsers), you can make the constructor property
-  // non-enumerable if you define it like this instead
-  Object.defineProperty(sub.prototype, 'constructor', { 
-    enumerable: false, 
-    value: sub 
-  });
-}
