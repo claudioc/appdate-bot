@@ -3,15 +3,15 @@
 
 # Appdate Bot Module
 
-This is the module you need to use when creating a new Appdate bot.
+This is the module you need to use when creating a new Appdate bot runner.
 
-To create a new Bot, let's say for the project `foobar`:
+To create a new Bot runner module, let's say for the project `foobar`:
 
-- Create a new directory (es: `mkdir bot-foobar`)
+- Create a new directory (es: `mkdir appdate-my-project-bot`)
 - run `npm init` and answer the questions as follows
-  - the name of the bot should be 'appdate-bot-foobar'
+  - the name of the bot should be 'appdate-my-project-bot'
   - the version should be 0.0.1
-  - enter a brief description ("This is the bot...")
+  - enter a brief description ("This is the bot runner for...")
   - the entry point is `index.js`
   - the test command can be left empty
   - git repository can be left empty (the bot will be included as part of the main Appdate project)
@@ -21,7 +21,9 @@ To create a new Bot, let's say for the project `foobar`:
 - run `npm install appdate-bot --save`
 - run `touch index.js`
 
-Now open up `index.js` with your favourite text editor and start writing your bot.
+Now open up `index.js` with your favourite text editor and start writing your bot runner.
+
+Your module must export just a `run` method which accepts a callback. Once the bot finishes its job, you will call the callback using the conventional nodejs way that is first the error parameter and then the bot object itself.
 
 For example:
 
@@ -36,22 +38,28 @@ var bot = new Bot({
     repository: 'https://github.com/foobar/foobar-project'
 });
 
-bot.fetch('http://www.foobar-project.com/releases')
+module.exports = {
 
-    .then(function (response) {
+  run: function (cb) {
 
-        var $tags = response.$('#container > li');
+    bot.fetch('http://www.foobar-project.com/releases')
 
-        bot.set('releaseDate', $tags.find('time').attr('datetime'));
-        bot.set('currentVersion', $tags.find('h3 > a > .tag-name').text());
-        bot.set('downloadUrl', 'http://code.jquery.com/jquery-%s.js', bot.get('currentVersion'));
-        bot.set('downloadPage', 'http://www.foobar-project.com/download/');
-        bot.set('releaseNotesUrl', 'http://www.foobar-project.com/changelog/');
+        .then(function (response) {
 
-        bot.end();
-    })
+            var $tags = response.$('#container > li');
 
-    .catch(function (err) {
-        bot.abort(err);
-    });
+            bot.set('releaseDate', $tags.find('time').attr('datetime'));
+            bot.set('currentVersion', $tags.find('h3 > a > .tag-name').text());
+            bot.set('downloadUrl', 'http://code.jquery.com/jquery-%s.js', bot.get('currentVersion'));
+            bot.set('downloadPage', 'http://www.foobar-project.com/download/');
+            bot.set('releaseNotesUrl', 'http://www.foobar-project.com/changelog/');
+
+            cb(null, bot);
+        })
+
+        .catch(function (err) {
+            cb(err, bot);
+        });
+  }
+}
 ```

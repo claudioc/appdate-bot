@@ -13,8 +13,6 @@ var Response = function (html) {
 
 var Bot = function (project) {
 
-    this.runnable = true;
-
     this.results = {
         currentVersion: '',
         releaseNotesUrl: '',
@@ -68,16 +66,6 @@ Bot.prototype.get = function (key) {
     }
 
     return this.results[key];
-};
-
-Bot.prototype.abort = function (error) {
-    console.error(error);
-    process.exit(1);
-};
-
-Bot.prototype.end = function () {
-    console.log(JSON.stringify(this.results));
-    process.exit(0);
 };
 
 Bot.prototype.fetch = function (url) {
