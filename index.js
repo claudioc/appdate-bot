@@ -16,6 +16,7 @@ var Bot = function (project) {
     this.results = {
         currentVersion: '',
         releaseNotesUrl: '',
+        releaseNotesPage: '',
         releaseDate: '',
         downloadUrl: '',
         downloadPage: ''
@@ -93,6 +94,15 @@ var Bot_Github = function(project) {
 
 Bot_Github.prototype = _.create(Bot.prototype);
 
+
+Bot_Github.prototype.urlForCommits = function (branch) {
+    return sprintf('https://github.com/rails/rails/commits/%s', branch);
+};
+
+Bot_Github.prototype.urlForDownload = function (tag) {
+    return sprintf('https://github.com/rails/rails/archive/%s.tar.gz', tag);
+};
+
 Bot_Github.prototype.fetchTags = function (account, repo, test) {
 
     var data = [];
@@ -130,6 +140,21 @@ var utils = {
 
     maxVersion: function (versions, range) {
         return semver.maxSatisfying(versions, range);
+    },
+
+    versionToString: function (version, pattern) {
+
+        var parts = semver.valid(version),
+            output = '';
+
+        if (parts) {
+            parts = parts.split('.');
+            output = pattern.replace('major', parts[0])
+                            .replace('minor', parts[1])
+                            .replace('patch', parts[2]);
+        }
+
+        return output;
     }
 };
 

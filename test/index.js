@@ -33,6 +33,21 @@ describe('The utils object', function () {
             (max === null).should.be.true;
         });
     });
+
+    describe('versionToString method', function () {
+
+        it('should return version string with in a formatted', function () {
+
+            var str = utils.versionToString('4.1.1', 'major-minor');
+            str.should.equal('4-1');
+
+            str = utils.versionToString('4erwerwe.1.1', 'major-minor');
+            str.should.equal('');
+
+            str = utils.versionToString('4.1.5', 'major-minor+patch');
+            str.should.equal('4-1+5');
+        });
+    });
 });
 
 describe('The github bot object', function () {
@@ -82,7 +97,6 @@ describe('The bot object', function () {
             bot.project.should.have.property('description', '');
             bot.project.should.have.property('website', '');
             bot.project.should.have.property('repository', '');
-            bot.runnable.should.be.true;
         });
 
         it ('should set the right project properties', function () {
