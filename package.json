@@ -1,6 +1,6 @@
 {
   "name": "appdate-bot",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "This is the appdate bot module",
   "author": "Claudio Cicali <claudio.cicali@gmail.com>",
   "main": "index.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/claudioc/jingo"
+    "url": "https://github.com/claudioc/appdate-bot"
   },
   "licenses": [
     {

@@ -53,6 +53,10 @@ Bot.prototype.set = function (key, value) {
         throw new Error('Appdate bot: unknown result key ' + key);
     }
 
+    if (this.results[key]) {
+        throw new Error('Appdate bot: result key already set ' + key);
+    }
+
     this.results[key] = sprintf.apply(null, Array.prototype.slice.call(arguments, 1));
 };
 
@@ -89,25 +93,46 @@ Bot.prototype.fetch = function (url) {
 };
 
 var Bot_Github = function(project) {
+
+    if (!/http(s?)\:\/\/(?:www\.)?github\.com/.test(project.repository)) {
+        throw new Error('Appdate bot: the project repository url is not from Github (' + project.repository + ')');
+    }
+
     Bot.call(this, project);
+
+    if (project.repository.substr(-1) == '/') {
+        project.repository = project.repository.substr(0, project.repository.length - 1);
+    }
+
+    var parts = project.repository.split('/');
+
+    if (parts.length !== 5) {
+        throw new Error('Appdate bot: the project repository url is not from Github (' + project.repository + ')');
+    }
+
+    this.ghRepo = parts[parts.length - 1];
+    this.ghAccount = parts[parts.length - 2];
 };
 
 Bot_Github.prototype = _.create(Bot.prototype);
 
-
 Bot_Github.prototype.urlForCommits = function (branch) {
-    return sprintf('https://github.com/rails/rails/commits/%s', branch);
+    return sprintf('https://github.com/%s/%s/commits/%s', this.ghAccount, this.ghRepo, branch);
+};
+
+Bot_Github.prototype.urlForTag = function (tag) {
+    return sprintf('https://github.com/%s/%s/releases/tag/%s', this.ghAccount, this.ghRepo, tag);
 };
 
 Bot_Github.prototype.urlForDownload = function (tag) {
-    return sprintf('https://github.com/rails/rails/archive/%s.tar.gz', tag);
+    return sprintf('https://github.com/%s/%s/archive/%s.tar.gz', this.ghAccount, this.ghRepo, tag);
 };
 
-Bot_Github.prototype.fetchTags = function (account, repo, test) {
+Bot_Github.prototype.fetchTags = function (test) {
 
     var data = [];
 
-    return this.fetch('https://github.com/' + account + '/' + repo + '/releases')
+    return this.fetch('https://github.com/' + this.ghAccount + '/' + this.ghRepo + '/releases')
 
         .then(function (response) {
     
@@ -122,6 +147,11 @@ Bot_Github.prototype.fetchTags = function (account, repo, test) {
 
                 var $el = response.$(el),
                     version = $el.find('h3 > a > .tag-name').text();
+
+                // Let's try to be as much semver-ish as possible (I am looking at you, WordPress)
+                if ((version.split('.').length) - 1 < 3) {
+                    version += '.0';
+                }
 
                 if (!test || (matches = version.match(test))) {
 

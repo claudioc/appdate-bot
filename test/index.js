@@ -56,14 +56,54 @@ describe('The github bot object', function () {
 
         it ('should be an instance of Bot', function () {
             
-            var bot = new Bot_Github({group: 'salazar'});
+            var bot = new Bot_Github({group: 'salazar', repository: 'https://github.com/x/y'});
 
             bot.should.be.an.instanceof(Bot);
 
             bot.project.should.have.property('name', 'Unknown');
         });
+
+        it ('should throw without a valid github url', function () {
+
+            (function () {
+                new Bot_Github({group: 'salazar', repository: '//github.com/x/y'});
+            }).should.throw(/repository url is not from Github/);
+
+            (function () {
+                new Bot_Github({group: 'salazar'});
+            }).should.throw(/repository url is not from Github/);
+
+            (function () {
+                new Bot_Github({group: 'salazar', repository: 'https://github.com/y'});
+            }).should.throw(/repository url is not from Github/);
+
+            (function () {
+                new Bot_Github({group: 'salazar', repository: 'https://github.com/y/'});
+            }).should.throw(/repository url is not from Github/);
+
+            (function () {
+                new Bot_Github({group: 'salazar', repository: 'https://github.com'});
+            }).should.throw(/repository url is not from Github/);
+        });
     });
 
+    describe('the url methods', function () {
+
+        it ('should build the url for the commits on a branch', function () {
+            var bot = new Bot_Github({group: 'salazar', repository: 'https://github.com/x/y'});
+            bot.urlForCommits('zot').should.equal('https://github.com/x/y/commits/zot')
+        });
+
+        it ('should build the url for a tag', function () {
+            var bot = new Bot_Github({group: 'salazar', repository: 'https://github.com/x/y'});
+            bot.urlForTag('zot').should.equal('https://github.com/x/y/releases/tag/zot')
+        });
+
+        it ('should build the url for a download', function () {
+            var bot = new Bot_Github({group: 'salazar', repository: 'https://github.com/x/y'});
+            bot.urlForDownload('zot-10.3').should.equal('https://github.com/x/y/archive/zot-10.3.tar.gz')
+        });
+    });
 });
 
 describe('The bot object', function () {
@@ -128,6 +168,16 @@ describe('The bot object', function () {
             (function () {
                 bot.set('bazzinga', 23);
             }).should.throw(/unknown result key/);
+        });
+
+        it ('should throw on a double set', function () {
+
+            var bot = new Bot({group: 'foobar'});
+
+            (function () {
+                bot.set('currentVersion', 23);
+                bot.set('currentVersion', 23);
+            }).should.throw(/result key already set/);
         });
 
         it ('should set a result key', function () {
