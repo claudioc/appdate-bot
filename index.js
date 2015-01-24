@@ -116,6 +116,10 @@ var Bot_Github = function(project) {
 
 Bot_Github.prototype = _.create(Bot.prototype);
 
+Bot_Github.prototype.urlForReleases = function () {
+    return sprintf('https://github.com/%s/%s/releases', this.ghAccount, this.ghRepo);
+};
+
 Bot_Github.prototype.urlForCommits = function (branch) {
     return sprintf('https://github.com/%s/%s/commits/%s', this.ghAccount, this.ghRepo, branch);
 };
@@ -132,7 +136,7 @@ Bot_Github.prototype.fetchTags = function (test) {
 
     var data = [];
 
-    return this.fetch('https://github.com/' + this.ghAccount + '/' + this.ghRepo + '/releases')
+    return this.fetch(this.urlForReleases())
 
         .then(function (response) {
     
