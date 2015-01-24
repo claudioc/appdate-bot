@@ -149,7 +149,7 @@ Bot_Github.prototype.fetchTags = function (test) {
                     version = $el.find('h3 > a > .tag-name').text();
 
                 // Let's try to be as much semver-ish as possible (I am looking at you, WordPress)
-                if ((version.split('.').length) - 1 < 3) {
+                if ((version.split('.').length) - 1 < 2) {
                     version += '.0';
                 }
 
